@@ -33,27 +33,14 @@ public class SistemaSolar extends JPanel implements ActionListener {
         this.setBackground(Color.BLACK);
 
         // Crear el Sol
-        sol = new CuerpoCeleste(WIDTH/2, HEIGHT/2, 1.9890e30, 30, "/img/sol.png");
-        sol = new CuerpoCeleste(WIDTH / 2, HEIGHT / 2, 1.9890e30, 30, 0, 0, "/img/sol.png");
+        sol = new CuerpoCeleste(WIDTH / 2, HEIGHT / 2, 1.9890e30, 30, 0, 0, "/img/sol.png"); //Sol
 
         // Crear planetas con sus posiciones y masas
-<<<<<<< Updated upstream
-        planetas.add(new CuerpoCeleste((float)(distanciaTierra * escala) + WIDTH/2, HEIGHT/2, 5.974e24, 14, "/img/tierra.png")); // Tierra
-        planetas.add(new CuerpoCeleste((float)(distanciaMarte * escala) + WIDTH/2, HEIGHT/2, 6.419e23, 16, "/img/marte.png")); // Marte
-        planetas.add(new CuerpoCeleste((float)(distanciaMercurio * escala) + WIDTH/2, HEIGHT/2, 3.30e23, 10, "/img/mercurio.png")); // Mercurio
-        planetas.add(new CuerpoCeleste((float)(distanciaVenus * escala) + WIDTH/2, HEIGHT/2, 4.869e24, 12, "/img/venus.png")); // Venus
-
-        // Inicializar velocidades para simular órbitas
-        for (CuerpoCeleste planeta : planetas) {
-            double distanciaReal = (planeta.x - WIDTH / 2) / escala;
-            double velocidadOrbital = Math.sqrt(G * sol.masa / distanciaReal);
-            planeta.vx = 0;
-            planeta.vy = (float) (velocidadOrbital * escala);
-        }
         planetas.add(new CuerpoCeleste((float) (distanciaTierra * escala) + WIDTH / 2, HEIGHT / 2, 5.974e24, 14, 0, -29.783e3 * escala, "/img/tierra.png")); //Tierra
         planetas.add(new CuerpoCeleste((float) (distanciaMarte * escala) + WIDTH / 2, HEIGHT / 2, 6.419e23, 16, 0, -24.017e3 * escala, "/img/marte.png")); //Marte
         planetas.add(new CuerpoCeleste((float) (distanciaMercurio * escala) + WIDTH / 2, HEIGHT / 2, 3.302e23, 10, 0, -47.4e3 * escala, "/img/mercurio.png")); //Mercurio
         planetas.add(new CuerpoCeleste((float) (distanciaVenus * escala) + WIDTH / 2, HEIGHT / 2, 4.869e24, 12, 0, -35.02e3 * escala, "/img/venus.png")); //Venus
+
 
         // Configurar el Timer para actualizar la simulación
         timer = new Timer(10, this);
@@ -115,23 +102,18 @@ public class SistemaSolar extends JPanel implements ActionListener {
 
     static class CuerpoCeleste {
         float x, y;
-        float vx, vy;
         double vx, vy;
         double masa;
         int radio;
         Image imagen;
 
-        public CuerpoCeleste(float x, float y, double masa, int radio, String rutaImagen) {
         public CuerpoCeleste(float x, float y, double masa, int radio, double vx, double vy, String rutaImagen) {
             this.x = x;
             this.y = y;
             this.masa = masa;
             this.radio = radio;
+            //this.color = color;
             this.imagen = new ImageIcon(getClass().getResource(rutaImagen)).getImage();
-            
-            this.vx = 0;
-            this.vy = 0;
-        }
 
             this.vx = vx;
             this.vy = vy;
