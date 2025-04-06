@@ -115,7 +115,7 @@ public class SistemaSolar extends JPanel implements ActionListener {
             planeta.x += planeta.vx * dt;
             planeta.y += planeta.vy * dt;
             planeta.trayectoria.add(new Point((int) planeta.x, (int) planeta.y));
-            if (planeta.trayectoria.size() > 1000) { // Para evitar sobreposición de lineas
+            if (planeta.trayectoria.size() > 2000) { // Para evitar sobreposición de lineas
                 planeta.trayectoria.remove(0);
             }
 
