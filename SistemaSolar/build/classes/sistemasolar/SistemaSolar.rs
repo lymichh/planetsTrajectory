@@ -1,2 +1,0 @@
-SistemaSolar
-SistemaSolar$CuerpoCeleste

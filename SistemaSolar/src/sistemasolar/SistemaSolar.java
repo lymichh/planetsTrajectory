@@ -14,8 +14,8 @@ public class SistemaSolar extends JPanel implements ActionListener {
     private final double G = 6.67428e-11; // Constante gravitacional
     private final double dt = 3600*24 ; // Paso de tiempo (1 día en segundos)
     private final double unidadAstro = 1.496e11 ; // 1 Unidad Astronómica (UA)
-    private final float escala = 250 / (float) unidadAstro; // Factor de escala
-    private final int WIDTH = 1100, HEIGHT = 900;
+    private final float escala = 200 / (float) unidadAstro; // Factor de escala
+    private final int WIDTH = 1200, HEIGHT = 900;
     
     double distanciaTierra = unidadAstro; // 1 UA
     double distanciaMarte = 1.524 * unidadAstro; // 1.524 UA
@@ -32,17 +32,33 @@ public class SistemaSolar extends JPanel implements ActionListener {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         this.setBackground(Color.BLACK);
 
-        // Crear el Sol
         sol = new CuerpoCeleste(WIDTH / 2, HEIGHT / 2, 1.9890e30, 30, 0, 0, "/img/sol.png"); //Sol
 
-        // Crear planetas con sus posiciones y masas
-        planetas.add(new CuerpoCeleste((float) (distanciaTierra * escala) + WIDTH / 2, HEIGHT / 2, 5.974e24, 14, 0, -29.783e3 * escala, "/img/tierra.png")); //Tierra
+        // Se crean los objetos planetas
+        //Posición en x diferente a solo WIDTH/2, para que en la simulación partan desde diferentes puntos y resalte más la orbita de cada uno
+        float dxTierra = (float)(Math.cos(Math.toRadians(30)) * distanciaTierra * escala);
+        float dyTierra = (float)(Math.sin(Math.toRadians(30)) * distanciaTierra * escala);
+        planetas.add(new CuerpoCeleste(WIDTH / 2 + dxTierra, HEIGHT / 2 - dyTierra, 5.974e24, 14, -10e3 * escala, -29.783e3 * escala, "/img/tierra.png"));
+        
+        float dxMarte = (float) (Math.cos(Math.toRadians(30)) * distanciaMarte * escala);
+        float dyMarte = (float) (Math.sin(Math.toRadians(30)) * distanciaMarte * escala);
+        planetas.add(new CuerpoCeleste(WIDTH / 2 + dxMarte, HEIGHT / 2 - dyMarte, 6.419e23, 16, -13e3 * escala, -24.017e3 * escala, "/img/marte.png"));
+
+        float dxMercurio = (float)(Math.cos(Math.toRadians(60)) * distanciaMercurio * escala);
+        float dyMercurio = (float)(Math.sin(Math.toRadians(60)) * distanciaMercurio * escala);
+        planetas.add(new CuerpoCeleste(WIDTH / 2 + dxMercurio, HEIGHT / 2 - dyMercurio, 3.302e23, 10, -25e3 * escala, -47.4e3 * escala, "/img/mercurio.png"));
+
+        float dxVenus = (float) (Math.cos(Math.toRadians(45)) * distanciaVenus * escala);
+        float dyVenus = (float) (Math.sin(Math.toRadians(45)) * distanciaVenus * escala);
+        planetas.add(new CuerpoCeleste(WIDTH / 2 + dxVenus, HEIGHT / 2 - dyVenus, 4.869e24, 12, -15e3 * escala, -35.02e3 * escala, "/img/venus.png"));
+
+        /**planetas.add(new CuerpoCeleste((float) (distanciaTierra * escala) + WIDTH / 2, HEIGHT / 2, 5.974e24, 14, 0, -29.783e3 * escala, "/img/tierra.png")); //Tierra
         planetas.add(new CuerpoCeleste((float) (distanciaMarte * escala) + WIDTH / 2, HEIGHT / 2, 6.419e23, 16, 0, -24.017e3 * escala, "/img/marte.png")); //Marte
         planetas.add(new CuerpoCeleste((float) (distanciaMercurio * escala) + WIDTH / 2, HEIGHT / 2, 3.302e23, 10, 0, -47.4e3 * escala, "/img/mercurio.png")); //Mercurio
         planetas.add(new CuerpoCeleste((float) (distanciaVenus * escala) + WIDTH / 2, HEIGHT / 2, 4.869e24, 12, 0, -35.02e3 * escala, "/img/venus.png")); //Venus
+        **/
 
-
-        // Configurar el Timer para actualizar la simulación
+        // Timer para actualizar la simulación
         timer = new Timer(10, this);
         timer.start();
     }
@@ -53,7 +69,6 @@ public class SistemaSolar extends JPanel implements ActionListener {
         Graphics2D g2 = (Graphics2D) g;
         g2.setFont(new Font("Times New Roman", Font.PLAIN,18));
 
-        // Dibujar el Sol
         sol.dibujar(g2);
 
         // Dibujar los planetas y actualizar sus posiciones
@@ -61,7 +76,7 @@ public class SistemaSolar extends JPanel implements ActionListener {
             planeta.dibujar(g2);
         }
 
-        // Dibujar información de velocidades
+        // Se añade la información de velocidades y fuerza por planeta
         g2.setColor(Color.WHITE);
         for (CuerpoCeleste planeta : planetas) {
             double dx = planeta.x - sol.x;
@@ -112,7 +127,6 @@ public class SistemaSolar extends JPanel implements ActionListener {
             this.y = y;
             this.masa = masa;
             this.radio = radio;
-            //this.color = color;
             this.imagen = new ImageIcon(getClass().getResource(rutaImagen)).getImage();
 
             this.vx = vx;
