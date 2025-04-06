@@ -31,7 +31,7 @@ public class SistemaSolar extends JPanel implements ActionListener {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         this.setBackground(Color.BLACK);
 
-        sol = new CuerpoCeleste(WIDTH / 2, HEIGHT / 2, 1.9890e30, 30, 0, 0, "/img/sol.png"); //Sol
+        sol = new CuerpoCeleste(WIDTH / 2, HEIGHT / 2, 1.9890e30, 30, 0, 0, "/img/sol.png");
 
         // Se crean los objetos planetas
         //Posición en x diferente a solo WIDTH/2, para que en la simulación partan desde diferentes puntos y resalte más la orbita de cada uno
@@ -51,19 +51,6 @@ public class SistemaSolar extends JPanel implements ActionListener {
         float dyVenus = (float) (Math.sin(Math.toRadians(45)) * distanciaVenus * escala);
         planetas.add(new CuerpoCeleste(WIDTH / 2 + dxVenus, HEIGHT / 2 - dyVenus, 4.869e24, 12, -15e3 * escala, -35.02e3 * escala, "/img/venus.png"));
 
-        /**
-         * planetas.add(new CuerpoCeleste((float) (distanciaTierra * escala) +
-         * WIDTH / 2, HEIGHT / 2, 5.974e24, 14, 0, -29.783e3 * escala,
-         * "/img/tierra.png")); //Tierra planetas.add(new CuerpoCeleste((float)
-         * (distanciaMarte * escala) + WIDTH / 2, HEIGHT / 2, 6.419e23, 16, 0,
-         * -24.017e3 * escala, "/img/marte.png")); //Marte planetas.add(new
-         * CuerpoCeleste((float) (distanciaMercurio * escala) + WIDTH / 2,
-         * HEIGHT / 2, 3.302e23, 10, 0, -47.4e3 * escala, "/img/mercurio.png"));
-         * //Mercurio planetas.add(new CuerpoCeleste((float) (distanciaVenus *
-         * escala) + WIDTH / 2, HEIGHT / 2, 4.869e24, 12, 0, -35.02e3 * escala,
-         * "/img/venus.png")); //Venus
-         *
-         */
         // Timer para actualizar la simulación
         timer = new Timer(10, this);
         timer.start();
@@ -128,7 +115,7 @@ public class SistemaSolar extends JPanel implements ActionListener {
             planeta.x += planeta.vx * dt;
             planeta.y += planeta.vy * dt;
             planeta.trayectoria.add(new Point((int) planeta.x, (int) planeta.y));
-            if (planeta.trayectoria.size() > 1000) { //evitar sobreposición de lineas
+            if (planeta.trayectoria.size() > 1000) { // Para evitar sobreposición de lineas
                 planeta.trayectoria.remove(0);
             }
 
@@ -157,6 +144,7 @@ public class SistemaSolar extends JPanel implements ActionListener {
         }
 
         public void dibujar(Graphics2D g2) {
+            g2.setColor(Color.GRAY);
             for (int i = 1; i < trayectoria.size(); i++) {
                 Point p1 = trayectoria.get(i - 1);
                 Point p2 = trayectoria.get(i);
