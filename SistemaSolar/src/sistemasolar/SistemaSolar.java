@@ -7,6 +7,13 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * Simulación visual del sistema solar en 2D.
+ * Esta clase contiene el panel principal donde se renderizan el Sol y los planetas,
+ * así como la lógica de movimiento basada en la gravedad newtoniana.
+ * 
+ * @author Kesly Rodríguez, Joshua Lobo, Alexy Salcedo y    Santiago Vengoechea
+ */
 public class SistemaSolar extends JPanel implements ActionListener {
 
     // Constantes y escala
@@ -27,6 +34,9 @@ public class SistemaSolar extends JPanel implements ActionListener {
 
     private final Timer timer;
 
+    /**
+     * Constructor que inicializa la simulación y los planetas con sus parámetros iniciales.
+     */
     public SistemaSolar() {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         this.setBackground(Color.BLACK);
@@ -56,6 +66,12 @@ public class SistemaSolar extends JPanel implements ActionListener {
         timer.start();
     }
 
+    /**
+     * Método de renderizado que dibuja el Sol, los planetas, sus trayectorias
+     * y datos informativos como velocidad y fuerza gravitacional.
+     * 
+     * @param g Objeto tipo Graphics usado para el dibujo
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -91,12 +107,21 @@ public class SistemaSolar extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Llamado automáticamente por el Timer. Actualiza la lógica y repinta la pantalla.
+     * 
+     * @param e Evento generado por el Timer
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         actualizarPosiciones();
         repaint();
     }
-
+    
+    /**
+     * Calcula la fuerza gravitacional ejercida sobre cada planeta
+     * y actualiza su posición y velocidad en base a la segunda ley de Newton.
+     */
     private void actualizarPosiciones() {
         for (CuerpoCeleste planeta : planetas) {
             double dx = planeta.x - sol.x;
@@ -122,6 +147,9 @@ public class SistemaSolar extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Clase interna que representa un cuerpo celeste como el Sol o un planeta.
+     */
     static class CuerpoCeleste {
 
         float x, y;
@@ -131,6 +159,17 @@ public class SistemaSolar extends JPanel implements ActionListener {
         Image imagen;
         ArrayList<Point> trayectoria;
 
+        /**
+         * Constructor del cuerpo celeste con parámetros físicos e imagen asociada.
+         * 
+         * @param x Posición x inicial
+         * @param y Posición y inicial
+         * @param masa Masa en kilogramos
+         * @param radio Radio en píxeles para visualización
+         * @param vx Velocidad inicial en x
+         * @param vy Velocidad inicial en y
+         * @param rutaImagen Ruta de la imagen que representa al cuerpo
+         */
         public CuerpoCeleste(float x, float y, double masa, int radio, double vx, double vy, String rutaImagen) {
             this.x = x;
             this.y = y;
@@ -143,6 +182,11 @@ public class SistemaSolar extends JPanel implements ActionListener {
             this.trayectoria = new ArrayList<>();
         }
 
+        /**
+         * Dibuja el cuerpo celeste y su trayectoria pasada.
+         * 
+         * @param g2 Contexto gráfico para dibujar
+         */
         public void dibujar(Graphics2D g2) {
             g2.setColor(Color.GRAY);
             for (int i = 1; i < trayectoria.size(); i++) {
@@ -154,16 +198,38 @@ public class SistemaSolar extends JPanel implements ActionListener {
 
         }
 
+        /**
+         * Devuelve la magnitud de la velocidad real (sin escalar) del cuerpo.
+         * 
+         * @param escala Escala usada para el renderizado
+         * @return Velocidad en m/s
+         */
         public double getVelocidadReal(float escala) {
             return Math.sqrt(vx * vx + vy * vy) / escala;
         }
 
+        /**
+         * Calcula la magnitud de la fuerza gravitacional entre este cuerpo y el Sol.
+         * 
+         * @param G Constante gravitacional
+         * @param dx Diferencia en x
+         * @param dy Diferencia en y
+         * @param masa Masa del planeta
+         * @param solMasa Masa del Sol
+         * @param escala Escala usada
+         * @return Fuerza gravitacional en Newtons
+         */
         public double getFuerzaReal(double G, double dx, double dy, double masa, double solMasa, float escala) {
             double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
             return (G * solMasa * masa) / Math.pow(distancia / escala, 2);
         }
     }
 
+    /**
+     * Método principal que lanza la aplicación y crea la ventana principal.
+     * 
+     * @param args Argumentos de línea de comandos 
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Sistema Solar");
