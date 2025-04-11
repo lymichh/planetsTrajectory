@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Simulación visual del sistema solar en 2D.
- * Esta clase contiene el panel principal donde se renderizan el Sol y los planetas,
- * así como la lógica de movimiento basada en la gravedad newtoniana.
- * 
- * @author Kesly Rodríguez, Joshua Lobo, Alexy Salcedo y    Santiago Vengoechea
+ * Simulación visual del sistema solar en 2D. Esta clase contiene el panel
+ * principal donde se renderizan el Sol y los planetas, así como la lógica de
+ * movimiento basada en la gravedad newtoniana.
+ *
+ * @author Kesly Rodríguez, Joshua Lobo, Alexy Salcedo y Santiago Vengoechea
  */
 public class SistemaSolar extends JPanel implements ActionListener {
 
@@ -28,38 +28,49 @@ public class SistemaSolar extends JPanel implements ActionListener {
     double distanciaMercurio = 0.387 * unidadAstro; // 0.387 UA
     double distanciaVenus = 0.723 * unidadAstro; // 0.723 UA
 
+    double masaTierra = 5.974e24;
+    double masaMercurio = 3.302e23;
+    double masaSol = 1.989e30; // masa del Sol en kg
+
     // Listas para los cuerpos celestes
     private final ArrayList<CuerpoCeleste> planetas = new ArrayList<>();
     private final CuerpoCeleste sol;
 
     private final Timer timer;
 
+    private int numParticles = 4000;
+
     /**
-     * Constructor que inicializa la simulación y los planetas con sus parámetros iniciales.
+     * Constructor que inicializa la simulación y los planetas con sus
+     * parámetros iniciales.
      */
     public SistemaSolar() {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         this.setBackground(Color.BLACK);
 
         sol = new CuerpoCeleste(WIDTH / 2, HEIGHT / 2, 1.9890e30, 30, 0, 0, "/img/sol.png");
+        
+        Random rnorm = new Random();
+        double min = 0.387 * unidadAstro; 
+        double max = 12.0 * unidadAstro;  
 
-        // Se crean los objetos planetas
-        //Posición en x diferente a solo WIDTH/2, para que en la simulación partan desde diferentes puntos y resalte más la orbita de cada uno
-        float dxTierra = (float) (Math.cos(Math.toRadians(30)) * distanciaTierra * escala);
-        float dyTierra = (float) (Math.sin(Math.toRadians(30)) * distanciaTierra * escala);
-        planetas.add(new CuerpoCeleste(WIDTH / 2 + dxTierra, HEIGHT / 2 - dyTierra, 5.974e24, 14, -10e3 * escala, -29.783e3 * escala, "/img/tierra.png"));
+        for (int i = 0; i < numParticles; i++) {
+            double angulo = rnorm.nextDouble() * 2 * Math.PI;
+            double distancia = min + (max - min) * rnorm.nextDouble(); 
+            double masaAleatoria = masaMercurio + (masaTierra - masaMercurio) * rnorm.nextDouble();
 
-        float dxMarte = (float) (Math.cos(Math.toRadians(30)) * distanciaMarte * escala);
-        float dyMarte = (float) (Math.sin(Math.toRadians(30)) * distanciaMarte * escala);
-        planetas.add(new CuerpoCeleste(WIDTH / 2 + dxMarte, HEIGHT / 2 - dyMarte, 6.419e23, 16, -13e3 * escala, -24.017e3 * escala, "/img/marte.png"));
+            double velocidadOrbital = Math.sqrt(G * masaSol / distancia); // m/s
 
-        float dxMercurio = (float) (Math.cos(Math.toRadians(60)) * distanciaMercurio * escala);
-        float dyMercurio = (float) (Math.sin(Math.toRadians(60)) * distanciaMercurio * escala);
-        planetas.add(new CuerpoCeleste(WIDTH / 2 + dxMercurio, HEIGHT / 2 - dyMercurio, 3.302e23, 10, -25e3 * escala, -47.4e3 * escala, "/img/mercurio.png"));
+            // Convertir posición en coordenadas visuales
+            double x = WIDTH / 2 + Math.cos(angulo) * distancia * escala;
+            double y = HEIGHT / 2 + Math.sin(angulo) * distancia * escala;
 
-        float dxVenus = (float) (Math.cos(Math.toRadians(45)) * distanciaVenus * escala);
-        float dyVenus = (float) (Math.sin(Math.toRadians(45)) * distanciaVenus * escala);
-        planetas.add(new CuerpoCeleste(WIDTH / 2 + dxVenus, HEIGHT / 2 - dyVenus, 4.869e24, 12, -15e3 * escala, -35.02e3 * escala, "/img/venus.png"));
+            // vx = 0, vy = perpendicular al ángulo para que la partícula orbite
+            double vx = Math.sin(angulo) * velocidadOrbital * escala;
+            double vy = -Math.cos(angulo) * velocidadOrbital * escala;
+
+            planetas.add(new CuerpoCeleste((float) x, (float) y, masaAleatoria, 1, vx, vy, null));
+        }
 
         // Timer para actualizar la simulación
         timer = new Timer(10, this);
@@ -67,17 +78,15 @@ public class SistemaSolar extends JPanel implements ActionListener {
     }
 
     /**
-     * Método de renderizado que dibuja el Sol, los planetas, sus trayectorias
-     * y datos informativos como velocidad y fuerza gravitacional.
-     * 
+     * Método de renderizado que dibuja el Sol, los planetas, sus trayectorias y
+     * datos informativos como velocidad y fuerza gravitacional.
+     *
      * @param g Objeto tipo Graphics usado para el dibujo
      */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-        g2.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-
         sol.dibujar(g2);
 
         // Dibujar los planetas y actualizar sus posiciones
@@ -85,31 +94,12 @@ public class SistemaSolar extends JPanel implements ActionListener {
             planeta.dibujar(g2);
         }
 
-        // Se añade la información de velocidades y fuerza por planeta
-        g2.setColor(Color.WHITE);
-        //ArrayList<Point> A = new ArrayList<Point>();
-        for (CuerpoCeleste planeta : planetas) {
-            double dx = planeta.x - sol.x;
-            double dy = planeta.y - sol.y;
-
-            String velocidadTexto = String.format("V: %.2f m/s", planeta.getVelocidadReal(escala));
-            String fuerzaTexto = String.format("F: %.0f N", planeta.getFuerzaReal(G, dx, dy, planeta.masa, sol.masa, escala));
-            g2.drawString(velocidadTexto, (int) planeta.x + 15, (int) planeta.y - 15);
-            g2.drawString(fuerzaTexto, (int) planeta.x + 15, (int) planeta.y - 38);
-
-            /**
-             * A.add(new Point((int) planeta.x, (int) planeta.y)); if (A.size()
-             * > 1) { //g2.drawRect(A.get(A.size() - 1).x, A.get(A.size() -
-             * 1).y, 1, 1); g2.drawLine(A.get(A.size() - 1).x, A.get(A.size() -
-             * 1).y, A.get(A.size() - 2).x, A.get(A.size() - 2).y);
-            }
-             */
-        }
     }
 
     /**
-     * Llamado automáticamente por el Timer. Actualiza la lógica y repinta la pantalla.
-     * 
+     * Llamado automáticamente por el Timer. Actualiza la lógica y repinta la
+     * pantalla.
+     *
      * @param e Evento generado por el Timer
      */
     @Override
@@ -117,10 +107,10 @@ public class SistemaSolar extends JPanel implements ActionListener {
         actualizarPosiciones();
         repaint();
     }
-    
+
     /**
-     * Calcula la fuerza gravitacional ejercida sobre cada planeta
-     * y actualiza su posición y velocidad en base a la segunda ley de Newton.
+     * Calcula la fuerza gravitacional ejercida sobre cada planeta y actualiza
+     * su posición y velocidad en base a la segunda ley de Newton.
      */
     private void actualizarPosiciones() {
         for (CuerpoCeleste planeta : planetas) {
@@ -139,10 +129,6 @@ public class SistemaSolar extends JPanel implements ActionListener {
             // Actualizar posiciones
             planeta.x += planeta.vx * dt;
             planeta.y += planeta.vy * dt;
-            planeta.trayectoria.add(new Point((int) planeta.x, (int) planeta.y));
-            if (planeta.trayectoria.size() > 2000) { // Para evitar sobreposición de lineas
-                planeta.trayectoria.remove(0);
-            }
 
         }
     }
@@ -157,11 +143,11 @@ public class SistemaSolar extends JPanel implements ActionListener {
         double masa;
         int radio;
         Image imagen;
-        ArrayList<Point> trayectoria;
 
         /**
-         * Constructor del cuerpo celeste con parámetros físicos e imagen asociada.
-         * 
+         * Constructor del cuerpo celeste con parámetros físicos e imagen
+         * asociada.
+         *
          * @param x Posición x inicial
          * @param y Posición y inicial
          * @param masa Masa en kilogramos
@@ -175,32 +161,34 @@ public class SistemaSolar extends JPanel implements ActionListener {
             this.y = y;
             this.masa = masa;
             this.radio = radio;
-            this.imagen = new ImageIcon(getClass().getResource(rutaImagen)).getImage();
-
+            if (rutaImagen != null) {
+                this.imagen = new ImageIcon(getClass().getResource(rutaImagen)).getImage();
+            } else {
+                this.imagen = null;
+            }
             this.vx = vx;
             this.vy = vy;
-            this.trayectoria = new ArrayList<>();
         }
 
         /**
          * Dibuja el cuerpo celeste y su trayectoria pasada.
-         * 
+         *
          * @param g2 Contexto gráfico para dibujar
          */
         public void dibujar(Graphics2D g2) {
-            g2.setColor(Color.GRAY);
-            for (int i = 1; i < trayectoria.size(); i++) {
-                Point p1 = trayectoria.get(i - 1);
-                Point p2 = trayectoria.get(i);
-                g2.drawLine(p1.x, p1.y, p2.x, p2.y);
+            if (imagen != null) {
+                //Dibujo para el Sol
+                g2.drawImage(imagen, (int) (x - radio), (int) (y - radio), radio * 2, radio * 2, null);
+            } else {
+                //Dibujo para las particulas
+                g2.setColor(Color.WHITE);
+                g2.fillOval((int) (x - radio), (int) (y - radio), radio * 2, radio * 2);
             }
-            g2.drawImage(imagen, (int) (x - radio), (int) (y - radio), radio * 2, radio * 2, null);
-
         }
 
         /**
          * Devuelve la magnitud de la velocidad real (sin escalar) del cuerpo.
-         * 
+         *
          * @param escala Escala usada para el renderizado
          * @return Velocidad en m/s
          */
@@ -209,8 +197,9 @@ public class SistemaSolar extends JPanel implements ActionListener {
         }
 
         /**
-         * Calcula la magnitud de la fuerza gravitacional entre este cuerpo y el Sol.
-         * 
+         * Calcula la magnitud de la fuerza gravitacional entre este cuerpo y el
+         * Sol.
+         *
          * @param G Constante gravitacional
          * @param dx Diferencia en x
          * @param dy Diferencia en y
@@ -227,8 +216,8 @@ public class SistemaSolar extends JPanel implements ActionListener {
 
     /**
      * Método principal que lanza la aplicación y crea la ventana principal.
-     * 
-     * @param args Argumentos de línea de comandos 
+     *
+     * @param args Argumentos de línea de comandos
      */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
