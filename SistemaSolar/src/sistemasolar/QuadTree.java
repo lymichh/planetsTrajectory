@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import sistemasolar.SistemaSolar.CuerpoCeleste;
 
-
 class Point {
+
     public double x, y;
 
     public Point(double x, double y) {
@@ -14,8 +14,8 @@ class Point {
     }
 }
 
-
 class Rectangle {
+
     public double x, y, width, height;
 
     public Rectangle(double x, double y, double width, double height) {
@@ -26,17 +26,18 @@ class Rectangle {
     }
 
     public boolean contains(CuerpoCeleste point) {
-        return point.x >= this.x - this.width &&
-               point.x <= this.x + this.width &&
-               point.y >= this.y - this.height &&
-               point.y <= this.y + this.height;
+        return point.x >= this.x - this.width
+                && point.x <= this.x + this.width
+                && point.y >= this.y - this.height
+                && point.y <= this.y + this.height;
     }
 }
 
 class QuadTree {
+
     private Rectangle boundary;
     private int capacity;
-    private List<CuerpoCeleste> points;
+    public List<CuerpoCeleste> points;
     private boolean divided = false;
 
     private QuadTree northeast;
@@ -82,12 +83,26 @@ class QuadTree {
         } else {
             if (!divided) {
                 subdivide();
+                
+                for (CuerpoCeleste planeta : this.points) {
+                    this.northwest.insert(planeta);
+                    this.northeast.insert(planeta);
+                    this.southwest.insert(planeta);
+                    this.southeast.insert(planeta);
+                }
             }
-            northwest.insert(point);
-            northeast.insert(point);
-            southwest.insert(point);
-            southeast.insert(point);
+            this.northwest.insert(point);
+            this.northeast.insert(point);
+            this.southwest.insert(point);
+            this.southeast.insert(point);
         }
     }
-   
+    
+    public void CalcularFuerza(double G, double dx, double dy, double masa, double solMasa, float escala, CuerpoCeleste planetas){
+        
+    }
+        public double getFuerzaReal(double G, double dx, double dy, double masa, double solMasa, float escala) {
+            double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
+            return (G * solMasa * masa) / Math.pow(distancia / escala, 2);
+        }
 }

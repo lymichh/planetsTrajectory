@@ -68,8 +68,12 @@ public class SistemaSolar extends JPanel implements ActionListener {
             // vx = 0, vy = perpendicular al ángulo para que la partícula orbite
             double vx = Math.sin(angulo) * velocidadOrbital * escala;
             double vy = -Math.cos(angulo) * velocidadOrbital * escala;
-
+            
+            Rectangle pantalla = new Rectangle (0,0,WIDTH,HEIGHT);
+            QuadTree quadTree = new QuadTree(pantalla, 20);
+            quadTree.insert(new CuerpoCeleste((float) x, (float) y, masaAleatoria, 1, vx, vy, null));
             planetas.add(new CuerpoCeleste((float) x, (float) y, masaAleatoria, 1, vx, vy, null));
+            
         }
 
         // Timer para actualizar la simulación
