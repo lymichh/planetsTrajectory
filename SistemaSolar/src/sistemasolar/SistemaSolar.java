@@ -17,10 +17,10 @@ import java.util.Random;
 public class SistemaSolar extends JPanel implements ActionListener {
 
     // Constantes y escala
-    private final double G = 6.67428e-11; // Constante gravitacional
-    private final double dt = 3600 * 24; // Paso de tiempo (1 día en segundos)
-    private final double unidadAstro = 1.496e11; // 1 Unidad Astronómica (UA)
-    private final float escala = 200 / (float) unidadAstro; // Factor de escala
+    private final static double G = 6.67428e-11; // Constante gravitacional
+    private final static double dt = 3600 * 24; // Paso de tiempo (1 día en segundos)
+    private final static double unidadAstro = 1.496e11; // 1 Unidad Astronómica (UA)
+    private final static float escala = 200 / (float) unidadAstro; // Factor de escala
     private final int WIDTH = 1200, HEIGHT = 900;
 
     double distanciaTierra = unidadAstro; // 1 UA
@@ -34,13 +34,13 @@ public class SistemaSolar extends JPanel implements ActionListener {
 
     // Listas para los cuerpos celestes
     private final ArrayList<CuerpoCeleste> planetas = new ArrayList<>();
-    private final CuerpoCeleste sol;
+    private final static CuerpoCeleste sol = new CuerpoCeleste(1200 / 2, 900 / 2, 1.9890e30, 30, 0, 0, "/img/sol.png");
 
     private final Timer timer;
 
     private int numParticles = 4000;
-    
-    static Rectangle pantalla = new Rectangle (0,0,1200,900);
+
+    static Rectangle pantalla = new Rectangle(0, 0, 1200, 900);
     static QuadTree quadTree = new QuadTree(pantalla, 20);
 
     /**
@@ -51,15 +51,15 @@ public class SistemaSolar extends JPanel implements ActionListener {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         this.setBackground(Color.BLACK);
 
-        sol = new CuerpoCeleste(WIDTH / 2, HEIGHT / 2, 1.9890e30, 30, 0, 0, "/img/sol.png");
-        
+        //sol = new CuerpoCeleste(WIDTH / 2, HEIGHT / 2, 1.9890e30, 30, 0, 0, "/img/sol.png");
+
         Random rnorm = new Random();
-        double min = 0.387 * unidadAstro; 
-        double max = 12.0 * unidadAstro;  
+        double min = 0.387 * unidadAstro;
+        double max = 12.0 * unidadAstro;
 
         for (int i = 0; i < numParticles; i++) {
             double angulo = rnorm.nextDouble() * 2 * Math.PI;
-            double distancia = min + (max - min) * rnorm.nextDouble(); 
+            double distancia = min + (max - min) * rnorm.nextDouble();
             double masaAleatoria = masaMercurio + (masaTierra - masaMercurio) * rnorm.nextDouble();
 
             double velocidadOrbital = Math.sqrt(G * masaSol / distancia); // m/s
@@ -71,10 +71,10 @@ public class SistemaSolar extends JPanel implements ActionListener {
             // vx = 0, vy = perpendicular al ángulo para que la partícula orbite
             double vx = Math.sin(angulo) * velocidadOrbital * escala;
             double vy = -Math.cos(angulo) * velocidadOrbital * escala;
-          
+
             quadTree.insert(new CuerpoCeleste((float) x, (float) y, masaAleatoria, 1, vx, vy, null));
             planetas.add(new CuerpoCeleste((float) x, (float) y, masaAleatoria, 1, vx, vy, null));
-            
+
         }
 
         // Timer para actualizar la simulación
@@ -109,7 +109,7 @@ public class SistemaSolar extends JPanel implements ActionListener {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        actualizarPosiciones();
+        quadTree.actualizarPosiciones();
         repaint();
     }
 
@@ -117,27 +117,26 @@ public class SistemaSolar extends JPanel implements ActionListener {
      * Calcula la fuerza gravitacional ejercida sobre cada planeta y actualiza
      * su posición y velocidad en base a la segunda ley de Newton.
      */
-    private void actualizarPosiciones() {
-        for (CuerpoCeleste planeta : planetas) {
-            double dx = planeta.x - sol.x;
-            double dy = planeta.y - sol.y;
-            double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
-
-            double fuerza = quadTree.CalcularFuerza(G, dx, dy, planeta.masa, sol.masa, escala, planetas);
-            double ax = -fuerza * (dx / distancia) / planeta.masa;
-            double ay = -fuerza * (dy / distancia) / planeta.masa;
-
-            // Actualizar velocidades
-            planeta.vx += ax * dt * escala;
-            planeta.vy += ay * dt * escala;
-
-            // Actualizar posiciones
-            planeta.x += planeta.vx * dt;
-            planeta.y += planeta.vy * dt;
-
-        }
-    }
-
+//    private void actualizarPosiciones() {
+//        for (CuerpoCeleste planeta : planetas) {
+//            double dx = planeta.x - sol.x;
+//            double dy = planeta.y - sol.y;
+//            double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
+//
+//            double fuerza = quadTree.CalcularFuerza(G, dx, dy, planeta.masa, sol.masa, escala, planetas);
+//            double ax = -fuerza * (dx / distancia) / planeta.masa;
+//            double ay = -fuerza * (dy / distancia) / planeta.masa;
+//
+//            // Actualizar velocidades
+//            planeta.vx += ax * dt * escala;
+//            planeta.vy += ay * dt * escala;
+//
+//            // Actualizar posiciones
+//            planeta.x += planeta.vx * dt;
+//            planeta.y += planeta.vy * dt;
+//
+//        }
+//    }
     /**
      * Clase interna que representa un cuerpo celeste como el Sol o un planeta.
      */
@@ -216,6 +215,27 @@ public class SistemaSolar extends JPanel implements ActionListener {
         public double getFuerzaReal(double G, double dx, double dy, double masa, double solMasa, float escala) {
             double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
             return (G * solMasa * masa) / Math.pow(distancia / escala, 2);
+        }
+
+        public void actualizarPosiciones(ArrayList<CuerpoCeleste> particles) {
+            for (CuerpoCeleste planeta : particles) {
+                double dx = planeta.x - sol.x;
+                double dy = planeta.y - sol.y;
+                double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
+
+                double fuerza = planeta.getFuerzaReal(G, dx, dy, planeta.masa, sol.masa, escala);
+                double ax = -fuerza * (dx / distancia) / planeta.masa;
+                double ay = -fuerza * (dy / distancia) / planeta.masa;
+
+                // Actualizar velocidades
+                planeta.vx += ax * dt * escala;
+                planeta.vy += ay * dt * escala;
+
+                // Actualizar posiciones
+                planeta.x += planeta.vx * dt;
+                planeta.y += planeta.vy * dt;
+
+            }
         }
     }
 
