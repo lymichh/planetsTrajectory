@@ -21,7 +21,7 @@ public class SistemaSolar extends JPanel implements ActionListener {
     private final static double dt = 3600 * 24; // Paso de tiempo (1 día en segundos)
     private final static double unidadAstro = 1.496e11; // 1 Unidad Astronómica (UA)
     private final static float escala = 200 / (float) unidadAstro; // Factor de escala
-    private final int WIDTH = 1200, HEIGHT = 900;
+    private final static int WIDTH = 1200, HEIGHT = 900;
 
     double distanciaTierra = unidadAstro; // 1 UA
     double distanciaMarte = 1.524 * unidadAstro; // 1.524 UA
@@ -34,13 +34,13 @@ public class SistemaSolar extends JPanel implements ActionListener {
 
     // Listas para los cuerpos celestes
     private final ArrayList<CuerpoCeleste> planetas = new ArrayList<>();
-    private final static CuerpoCeleste sol = new CuerpoCeleste(1200 / 2, 900 / 2, 1.9890e30, 30, 0, 0, "/img/sol.png");
+    private final static CuerpoCeleste sol = new CuerpoCeleste(WIDTH / 2, HEIGHT / 2, 1.9890e30, 30, 0, 0, "/img/sol.png");
 
     private final Timer timer;
 
     private int numParticles = 4000;
 
-    static Rectangle pantalla = new Rectangle(0, 0, 1200, 900);
+    static Rectangle pantalla = new Rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT);
     static QuadTree quadTree = new QuadTree(pantalla, 20);
 
     /**
@@ -51,7 +51,6 @@ public class SistemaSolar extends JPanel implements ActionListener {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         this.setBackground(Color.BLACK);
 
-        //sol = new CuerpoCeleste(WIDTH / 2, HEIGHT / 2, 1.9890e30, 30, 0, 0, "/img/sol.png");
         Random rnorm = new Random();
         double min = 0.387 * unidadAstro;
         double max = 12.0 * unidadAstro;
@@ -113,30 +112,6 @@ public class SistemaSolar extends JPanel implements ActionListener {
         repaint();
     }
 
-    /**
-     * Calcula la fuerza gravitacional ejercida sobre cada planeta y actualiza
-     * su posición y velocidad en base a la segunda ley de Newton.
-     */
-//    private void actualizarPosiciones() {
-//        for (CuerpoCeleste planeta : planetas) {
-//            double dx = planeta.x - sol.x;
-//            double dy = planeta.y - sol.y;
-//            double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
-//
-//            double fuerza = quadTree.CalcularFuerza(G, dx, dy, planeta.masa, sol.masa, escala, planetas);
-//            double ax = -fuerza * (dx / distancia) / planeta.masa;
-//            double ay = -fuerza * (dy / distancia) / planeta.masa;
-//
-//            // Actualizar velocidades
-//            planeta.vx += ax * dt * escala;
-//            planeta.vy += ay * dt * escala;
-//
-//            // Actualizar posiciones
-//            planeta.x += planeta.vx * dt;
-//            planeta.y += planeta.vy * dt;
-//
-//        }
-//    }
     /**
      * Clase interna que representa un cuerpo celeste como el Sol o un planeta.
      */
@@ -217,6 +192,10 @@ public class SistemaSolar extends JPanel implements ActionListener {
             return (G * solMasa * masa) / Math.pow(distancia / escala, 2);
         }
 
+        /**
+         * Calcula la fuerza gravitacional ejercida sobre cada planeta y
+         * actualiza su posición y velocidad en base a la segunda ley de Newton.
+         */
         public void actualizarPosiciones(ArrayList<CuerpoCeleste> cercanos) {
             double ax = 0;
             double ay = 0;
@@ -225,27 +204,28 @@ public class SistemaSolar extends JPanel implements ActionListener {
             double dx = this.x - sol.x;
             double dy = this.y - sol.y;
             double distancia = Math.sqrt(dx * dx + dy * dy);
+            
             if (distancia != 0) {
                 double fuerza = (SistemaSolar.G * this.masa * sol.masa) / Math.pow(distancia / SistemaSolar.escala, 2);
                 ax -= fuerza * (dx / distancia) / this.masa;
                 ay -= fuerza * (dy / distancia) / this.masa;
             }
 
-//            // Atraído por partículas cercanas
-//            for (CuerpoCeleste otro : cercanos) {
-//                if (this == otro) {
-//                    continue;
-//                }
-//
-//                double dx2 = this.x - otro.x;
-//                double dy2 = this.y - otro.y;
-//                double distancia2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
-//                if (distancia2 != 0) {
-//                    double fuerza2 = (SistemaSolar.G * this.masa * otro.masa) / Math.pow(distancia2 / SistemaSolar.escala, 2);
-//                    ax -= fuerza2 * (dx2 / distancia2) / this.masa;
-//                    ay -= fuerza2 * (dy2 / distancia2) / this.masa;
-//                }
-//            }
+            // Atraído por partículas cercanas
+            for (CuerpoCeleste otro : cercanos) {
+                if (this == otro) {
+                    continue;
+                }
+
+                double dx2 = this.x - otro.x;
+                double dy2 = this.y - otro.y;
+                double distancia2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+                if (distancia2 != 0) {
+                    double fuerza2 = (SistemaSolar.G * this.masa * otro.masa) / Math.pow(distancia2 / SistemaSolar.escala, 2);
+                    ax -= fuerza2 * (dx2 / distancia2) / this.masa;
+                    ay -= fuerza2 * (dy2 / distancia2) / this.masa;
+                }
+            }
 
             this.vx += ax * SistemaSolar.dt * SistemaSolar.escala;
             this.vy += ay * SistemaSolar.dt * SistemaSolar.escala;

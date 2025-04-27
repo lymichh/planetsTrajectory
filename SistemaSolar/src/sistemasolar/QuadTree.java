@@ -99,47 +99,17 @@ class QuadTree {
     }
     
     public void actualizarPosiciones() {
-        
         if (this.divided) {
             this.northeast.actualizarPosiciones();
             this.southeast.actualizarPosiciones();
             this.northwest.actualizarPosiciones();
             this.southwest.actualizarPosiciones();
         } else {
-//            ArrayList<CuerpoCeleste> particles = null;
-//            particles.addAll(this.points);
             for (CuerpoCeleste planeta : this.points) {
                 planeta.actualizarPosiciones((ArrayList<CuerpoCeleste>) this.points);
             }
         }
         
-//        for (CuerpoCeleste planeta : this.points) {
-//
-//            //calcular con el sol
-//            double fuerza = CalcularFuerza(G, dx, dy, planeta.masa, 1.9890e30, escala);
-//            for (CuerpoCeleste planeta2 : this.points) {
-//                //calcular con los demás planetas
-//                if (planeta != planeta2) {
-//                    
-//                    double dx = planeta.x - x;
-//                    double dy = planeta.y - y;
-//                    double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
-//
-//                    double fuerzaSol = CalcularFuerza(G, dx, dy, planeta.masa, 1.9890e30, escala);
-//                    
-//                    double ax = -fuerza * (dx / distancia) / planeta.masa;
-//                    double ay = -fuerza * (dy / distancia) / planeta.masa;
-//
-//                    // Actualizar velocidades
-//                    planeta.vx += ax * dt * escala;
-//                    planeta.vy += ay * dt * escala;
-//
-//                    // Actualizar posiciones
-//                    planeta.x += planeta.vx * dt;
-//                    planeta.y += planeta.vy * dt;
-//                }
-//            }
-//        }
     }
     
     public double CalcularFuerza(double G, double dx, double dy, double masa, double solMasa, float escala) {
