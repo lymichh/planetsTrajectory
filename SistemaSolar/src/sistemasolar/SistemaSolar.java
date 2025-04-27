@@ -39,6 +39,9 @@ public class SistemaSolar extends JPanel implements ActionListener {
     private final Timer timer;
 
     private int numParticles = 4000;
+    
+    static Rectangle pantalla = new Rectangle (0,0,1200,900);
+    static QuadTree quadTree = new QuadTree(pantalla, 20);
 
     /**
      * Constructor que inicializa la simulación y los planetas con sus
@@ -68,9 +71,7 @@ public class SistemaSolar extends JPanel implements ActionListener {
             // vx = 0, vy = perpendicular al ángulo para que la partícula orbite
             double vx = Math.sin(angulo) * velocidadOrbital * escala;
             double vy = -Math.cos(angulo) * velocidadOrbital * escala;
-            
-            Rectangle pantalla = new Rectangle (0,0,WIDTH,HEIGHT);
-            QuadTree quadTree = new QuadTree(pantalla, 20);
+          
             quadTree.insert(new CuerpoCeleste((float) x, (float) y, masaAleatoria, 1, vx, vy, null));
             planetas.add(new CuerpoCeleste((float) x, (float) y, masaAleatoria, 1, vx, vy, null));
             
@@ -122,7 +123,7 @@ public class SistemaSolar extends JPanel implements ActionListener {
             double dy = planeta.y - sol.y;
             double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
 
-            double fuerza = planeta.getFuerzaReal(G, dx, dy, planeta.masa, sol.masa, escala);
+            double fuerza = quadTree.CalcularFuerza(G, dx, dy, planeta.masa, sol.masa, escala, planetas);
             double ax = -fuerza * (dx / distancia) / planeta.masa;
             double ay = -fuerza * (dy / distancia) / planeta.masa;
 

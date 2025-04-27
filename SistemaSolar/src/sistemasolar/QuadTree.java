@@ -83,7 +83,7 @@ class QuadTree {
         } else {
             if (!divided) {
                 subdivide();
-                
+
                 for (CuerpoCeleste planeta : this.points) {
                     this.northwest.insert(planeta);
                     this.northeast.insert(planeta);
@@ -97,12 +97,47 @@ class QuadTree {
             this.southeast.insert(point);
         }
     }
-    
-    public void CalcularFuerza(double G, double dx, double dy, double masa, double solMasa, float escala, CuerpoCeleste planetas){
-        
-    }
-        public double getFuerzaReal(double G, double dx, double dy, double masa, double solMasa, float escala) {
-            double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
-            return (G * solMasa * masa) / Math.pow(distancia / escala, 2);
+
+    private void actualizarPosiciones() {
+
+        double G = 6.67428e-11;
+        double unidadAstro = 1.496e11;
+        float escala = 200 / (float) unidadAstro;
+        int WIDTH = 1200, HEIGHT = 900;
+        float x = WIDTH / 2, y = HEIGHT / 2;
+        double dt = 3600 * 24;
+
+        for (CuerpoCeleste planeta : this.points) {
+            //calcular con el sol
+            double fuerza = CalcularFuerza(G, dx, dy, planeta.masa, 1.9890e30, escala);
+            for (CuerpoCeleste planeta2 : this.points) {
+                //calcular con los demás planetas
+                if (planeta != planeta2) {
+
+                    double dx = planeta.x - x;
+                    double dy = planeta.y - y;
+                    double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
+
+                    double fuerzaSol = CalcularFuerza(G, dx, dy, planeta.masa, 1.9890e30, escala);
+
+                    double ax = -fuerza * (dx / distancia) / planeta.masa;
+                    double ay = -fuerza * (dy / distancia) / planeta.masa;
+
+                    // Actualizar velocidades
+                    planeta.vx += ax * dt * escala;
+                    planeta.vy += ay * dt * escala;
+
+                    // Actualizar posiciones
+                    planeta.x += planeta.vx * dt;
+                    planeta.y += planeta.vy * dt;
+                }
+            }
         }
+    }
+
+    public double CalcularFuerza(double G, double dx, double dy, double masa, double solMasa, float escala) {
+        double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
+        return (G * solMasa * masa) / Math.pow(distancia / escala, 2);
+    }
+
 }
