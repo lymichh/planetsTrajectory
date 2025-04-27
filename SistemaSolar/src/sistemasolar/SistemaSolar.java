@@ -52,7 +52,6 @@ public class SistemaSolar extends JPanel implements ActionListener {
         this.setBackground(Color.BLACK);
 
         //sol = new CuerpoCeleste(WIDTH / 2, HEIGHT / 2, 1.9890e30, 30, 0, 0, "/img/sol.png");
-
         Random rnorm = new Random();
         double min = 0.387 * unidadAstro;
         double max = 12.0 * unidadAstro;
@@ -72,8 +71,9 @@ public class SistemaSolar extends JPanel implements ActionListener {
             double vx = Math.sin(angulo) * velocidadOrbital * escala;
             double vy = -Math.cos(angulo) * velocidadOrbital * escala;
 
-            quadTree.insert(new CuerpoCeleste((float) x, (float) y, masaAleatoria, 1, vx, vy, null));
-            planetas.add(new CuerpoCeleste((float) x, (float) y, masaAleatoria, 1, vx, vy, null));
+            CuerpoCeleste nuevo = new CuerpoCeleste((float) x, (float) y, masaAleatoria, 1, vx, vy, null);
+            quadTree.insert(nuevo);
+            planetas.add(nuevo);
 
         }
 
@@ -217,25 +217,41 @@ public class SistemaSolar extends JPanel implements ActionListener {
             return (G * solMasa * masa) / Math.pow(distancia / escala, 2);
         }
 
-        public void actualizarPosiciones(ArrayList<CuerpoCeleste> particles) {
-            for (CuerpoCeleste planeta : particles) {
-                double dx = planeta.x - sol.x;
-                double dy = planeta.y - sol.y;
-                double distancia = Math.sqrt(dx * dx + dy * dy); // Distancia r
+        public void actualizarPosiciones(ArrayList<CuerpoCeleste> cercanos) {
+            double ax = 0;
+            double ay = 0;
 
-                double fuerza = planeta.getFuerzaReal(G, dx, dy, planeta.masa, sol.masa, escala);
-                double ax = -fuerza * (dx / distancia) / planeta.masa;
-                double ay = -fuerza * (dy / distancia) / planeta.masa;
-
-                // Actualizar velocidades
-                planeta.vx += ax * dt * escala;
-                planeta.vy += ay * dt * escala;
-
-                // Actualizar posiciones
-                planeta.x += planeta.vx * dt;
-                planeta.y += planeta.vy * dt;
-
+            // Atraído por el Sol
+            double dx = this.x - sol.x;
+            double dy = this.y - sol.y;
+            double distancia = Math.sqrt(dx * dx + dy * dy);
+            if (distancia != 0) {
+                double fuerza = (SistemaSolar.G * this.masa * sol.masa) / Math.pow(distancia / SistemaSolar.escala, 2);
+                ax -= fuerza * (dx / distancia) / this.masa;
+                ay -= fuerza * (dy / distancia) / this.masa;
             }
+
+//            // Atraído por partículas cercanas
+//            for (CuerpoCeleste otro : cercanos) {
+//                if (this == otro) {
+//                    continue;
+//                }
+//
+//                double dx2 = this.x - otro.x;
+//                double dy2 = this.y - otro.y;
+//                double distancia2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+//                if (distancia2 != 0) {
+//                    double fuerza2 = (SistemaSolar.G * this.masa * otro.masa) / Math.pow(distancia2 / SistemaSolar.escala, 2);
+//                    ax -= fuerza2 * (dx2 / distancia2) / this.masa;
+//                    ay -= fuerza2 * (dy2 / distancia2) / this.masa;
+//                }
+//            }
+
+            this.vx += ax * SistemaSolar.dt * SistemaSolar.escala;
+            this.vy += ay * SistemaSolar.dt * SistemaSolar.escala;
+
+            this.x += this.vx * SistemaSolar.dt;
+            this.y += this.vy * SistemaSolar.dt;
         }
     }
 
